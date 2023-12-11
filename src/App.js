@@ -84,13 +84,13 @@ function App() {
 
   return (
     <>
-      <Header showForm={showForm} setShowForm={setShowForm}/>
+      <Header showForm={showForm} setShowForm={setShowForm} />
 
-      {showForm ? <NewFactForm setFacts={setFacts} setShowForm={setShowForm}/> : null}
+      {showForm ? <NewFactForm setFacts={setFacts} setShowForm={setShowForm} /> : null}
 
       <main className="main">
-        <CategoryFilter setCurrentCategory={setCurrentCategory}/>
-        {isLoading ? <Loader/> : <FactList facts={facts}/>}
+        <CategoryFilter setCurrentCategory={setCurrentCategory} />
+        {isLoading ? <Loader /> : <FactList facts={facts} />}
       </main>
     </>
   );
@@ -106,12 +106,12 @@ function Header({ showForm, setShowForm }) {
   return (
     <header className="header">
       <div className="logo">
-        <img src="logo.png" height="68" width="68" alt="Today I Learned Logo"/>
+        <img src="logo.png" height="68" width="68" alt="Today I Learned Logo" />
         <h1>{appTitle}</h1>
       </div>
 
       <button className="btn btn-large btn-open"
-              onClick={() => setShowForm((show) => !show)}>{showForm ? 'Close' : 'Share a fact'}</button>
+        onClick={() => setShowForm((show) => !show)}>{showForm ? 'Close' : 'Share a fact'}</button>
     </header>
   );
 }
@@ -130,6 +130,7 @@ function NewFactForm({ setFacts, setShowForm }) {
   const [text, setText] = useState('');
   const [source, setSource] = useState('http://example.com');
   const [category, setCategory] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
   const textLength = text.length;
 
   async function handleSubmit(e) {
@@ -152,13 +153,17 @@ function NewFactForm({ setFacts, setShowForm }) {
       // };
 
       // 3. Upload fact to Supabase and receive the new fact object
+      setIsUploading(true);
       const { data: newFact, error } = await supabase
         .from('facts')
         .insert([{ text, source, category }])
         .select();
+      setIsUploading(false);
 
       // 4. Add the new fact to the UI: add the fact to state.
-      setFacts((facts) => [newFact[0], ...facts]);
+      if (!error) {
+        setFacts((facts) => [newFact[0], ...facts]);
+      }
 
       // 5. Reset input fields
       setText('');
@@ -177,16 +182,19 @@ function NewFactForm({ setFacts, setShowForm }) {
         placeholder="Share a fact with the world..."
         value={text}
         onChange={(e) => setText(e.target.value)}
+        disabled={isUploading}
       />
       <span>{200 - textLength}</span>
       <input
         type="text"
         placeholder="Trustworthy source..."
         onChange={(e) => setSource(e.target.value)}
+        disabled={isUploading}
       />
       <select
         value={category}
         onChange={(e) => setCategory(e.target.value)}
+        disabled={isUploading}
       >
         <option value="">Choose category:</option>
         {CATEGORIES.map((cat => (
@@ -197,7 +205,7 @@ function NewFactForm({ setFacts, setShowForm }) {
           </option>
         )))}
       </select>
-      <button className="btn btn-large">Post</button>
+      <button className="btn btn-large" disabled={isUploading}>Post</button>
     </form>
   );
 }
@@ -240,7 +248,7 @@ function FactList({ facts }) {
   return (
     <section>
       <ul className="facts-list">
-        {facts.map((fact) => <Fact key={fact.id} fact={fact}/>)}
+        {facts.map((fact) => <Fact key={fact.id} fact={fact} />)}
       </ul>
       <p>There are {facts.length} facts in the database. Add your own!</p>
     </section>
@@ -248,6 +256,14 @@ function FactList({ facts }) {
 }
 
 function Fact({ fact }) {
+
+  async function handleVote() {
+    await supabase
+      .from('facts')
+      .update({ votesInteresting: fact.votesInteresting + 1 })
+      .eq('id', fact.id)
+      .select();
+  }
 
   return (
     <li className="fact">
@@ -263,11 +279,11 @@ function Fact({ fact }) {
         className="tag"
         style={{
           backgroundColor:
-          CATEGORIES.find((cat) => cat.name === fact.category).color
+            CATEGORIES.find((cat) => cat.name === fact.category).color
         }}>{fact.category}
       </span>
       <div className="vote-buttons">
-        <button>👍 {fact.votesInteresting}</button>
+        <button onClick={handleVote}>👍 {fact.votesInteresting}</button>
         <button>🤯 {fact.votesMindBlowing}</button>
         <button>📛 {fact.votesFalse}</button>
       </div>
