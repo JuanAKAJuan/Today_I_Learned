@@ -1,24 +1,24 @@
-import './style.css';
-import { useEffect, useState } from 'react';
-import supabase from './supabase';
+import "./style.css";
+import { useEffect, useState } from "react";
+import supabase from "./supabase";
 
 const CATEGORIES = [
-  { name: 'technology', color: '#3b82f6' },
-  { name: 'science', color: '#16a34a' },
-  { name: 'finance', color: '#ef4444' },
-  { name: 'society', color: '#eab308' },
-  { name: 'entertainment', color: '#db2777' },
-  { name: 'health', color: '#14b8a6' },
-  { name: 'history', color: '#f97316' },
-  { name: 'news', color: '#8b5cf6' },
+  { name: "technology", color: "#3b82f6" },
+  { name: "science", color: "#16a34a" },
+  { name: "finance", color: "#ef4444" },
+  { name: "society", color: "#eab308" },
+  { name: "entertainment", color: "#db2777" },
+  { name: "health", color: "#14b8a6" },
+  { name: "history", color: "#f97316" },
+  { name: "news", color: "#8b5cf6" },
 ];
 
 const initialFacts = [
   {
     id: 1,
-    text: 'React is being developed by Meta (formerly facebook)',
-    source: 'https://opensource.fb.com/',
-    category: 'technology',
+    text: "React is being developed by Meta (formerly facebook)",
+    source: "https://opensource.fb.com/",
+    category: "technology",
     votesInteresting: 24,
     votesMindBlowing: 9,
     votesFalse: 4,
@@ -26,10 +26,10 @@ const initialFacts = [
   },
   {
     id: 2,
-    text: 'Millennial dads spend 3 times as much time with their kids than their fathers spent with them. In 1982, 43% of fathers had never changed a diaper. Today, that number is down to 3%',
+    text: "Millennial dads spend 3 times as much time with their kids than their fathers spent with them. In 1982, 43% of fathers had never changed a diaper. Today, that number is down to 3%",
     source:
-      'https://www.mother.ly/parenting/millennial-dads-spend-more-time-with-their-kids',
-    category: 'society',
+      "https://www.mother.ly/parenting/millennial-dads-spend-more-time-with-their-kids",
+    category: "society",
     votesInteresting: 11,
     votesMindBlowing: 2,
     votesFalse: 0,
@@ -37,9 +37,9 @@ const initialFacts = [
   },
   {
     id: 3,
-    text: 'Lisbon is the capital of Portugal',
-    source: 'https://en.wikipedia.org/wiki/Lisbon',
-    category: 'society',
+    text: "Lisbon is the capital of Portugal",
+    source: "https://en.wikipedia.org/wiki/Lisbon",
+    category: "society",
     votesInteresting: 8,
     votesMindBlowing: 3,
     votesFalse: 1,
@@ -51,21 +51,21 @@ function App() {
   const [showForm, setShowForm] = useState(false);
   const [facts, setFacts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentCategory, setCurrentCategory] = useState('all');
+  const [currentCategory, setCurrentCategory] = useState("all");
 
   useEffect(
     function () {
       async function getFacts() {
         setIsLoading(true);
 
-        let query = supabase.from('facts').select('*');
+        let query = supabase.from("facts").select("*");
 
-        if (currentCategory !== 'all') {
-          query = query.eq('category', currentCategory);
+        if (currentCategory !== "all") {
+          query = query.eq("category", currentCategory);
         }
 
         const { data: facts, error } = await query
-          .order('votesInteresting', { ascending: false })
+          .order("votesInteresting", { ascending: false })
           .limit(1000);
 
         console.log(error);
@@ -73,24 +73,31 @@ function App() {
         if (!error) {
           setFacts(facts);
         } else {
-          alert('There was a problem getting data');
+          alert("There was a problem getting data");
         }
         setIsLoading(false);
       }
 
       getFacts();
-    }, [currentCategory]
+    },
+    [currentCategory]
   );
 
   return (
     <>
       <Header showForm={showForm} setShowForm={setShowForm} />
 
-      {showForm ? <NewFactForm setFacts={setFacts} setShowForm={setShowForm} /> : null}
+      {showForm ? (
+        <NewFactForm setFacts={setFacts} setShowForm={setShowForm} />
+      ) : null}
 
       <main className="main">
         <CategoryFilter setCurrentCategory={setCurrentCategory} />
-        {isLoading ? <Loader /> : <FactList facts={facts} />}
+        {isLoading ? (
+          <Loader />
+        ) : (
+          <FactList facts={facts} setFacts={setFacts} />
+        )}
       </main>
     </>
   );
@@ -101,7 +108,7 @@ function Loader() {
 }
 
 function Header({ showForm, setShowForm }) {
-  const appTitle = 'Today I Learned';
+  const appTitle = "Today I Learned";
 
   return (
     <header className="header">
@@ -110,8 +117,12 @@ function Header({ showForm, setShowForm }) {
         <h1>{appTitle}</h1>
       </div>
 
-      <button className="btn btn-large btn-open"
-        onClick={() => setShowForm((show) => !show)}>{showForm ? 'Close' : 'Share a fact'}</button>
+      <button
+        className="btn btn-large btn-open"
+        onClick={() => setShowForm((show) => !show)}
+      >
+        {showForm ? "Close" : "Share a fact"}
+      </button>
     </header>
   );
 }
@@ -123,13 +134,13 @@ function isValidHttpUrl(string) {
   } catch (_) {
     return false;
   }
-  return url.protocol === 'http:' || url.protocol === 'https:';
+  return url.protocol === "http:" || url.protocol === "https:";
 }
 
 function NewFactForm({ setFacts, setShowForm }) {
-  const [text, setText] = useState('');
-  const [source, setSource] = useState('http://example.com');
-  const [category, setCategory] = useState('');
+  const [text, setText] = useState("");
+  const [source, setSource] = useState("http://example.com");
+  const [category, setCategory] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const textLength = text.length;
 
@@ -155,7 +166,7 @@ function NewFactForm({ setFacts, setShowForm }) {
       // 3. Upload fact to Supabase and receive the new fact object
       setIsUploading(true);
       const { data: newFact, error } = await supabase
-        .from('facts')
+        .from("facts")
         .insert([{ text, source, category }])
         .select();
       setIsUploading(false);
@@ -166,9 +177,9 @@ function NewFactForm({ setFacts, setShowForm }) {
       }
 
       // 5. Reset input fields
-      setText('');
-      setSource('');
-      setCategory('');
+      setText("");
+      setSource("");
+      setCategory("");
 
       // 6. Close the form
       setShowForm(false);
@@ -197,15 +208,15 @@ function NewFactForm({ setFacts, setShowForm }) {
         disabled={isUploading}
       >
         <option value="">Choose category:</option>
-        {CATEGORIES.map((cat => (
-          <option
-            key={cat.name}
-            value={cat.name}>
+        {CATEGORIES.map((cat) => (
+          <option key={cat.name} value={cat.name}>
             {cat.name.toUpperCase()}
           </option>
-        )))}
+        ))}
       </select>
-      <button className="btn btn-large" disabled={isUploading}>Post</button>
+      <button className="btn btn-large" disabled={isUploading}>
+        Post
+      </button>
     </form>
   );
 }
@@ -217,7 +228,9 @@ function CategoryFilter({ setCurrentCategory }) {
         <li className="category">
           <button
             className="btn btn-all-categories"
-            onClick={() => setCurrentCategory('all')}>All
+            onClick={() => setCurrentCategory("all")}
+          >
+            All
           </button>
         </li>
         {CATEGORIES.map((cat) => (
@@ -236,11 +249,11 @@ function CategoryFilter({ setCurrentCategory }) {
   );
 }
 
-function FactList({ facts }) {
-
+function FactList({ facts, setFacts }) {
   if (facts.length === 0) {
     return (
-      <p className="message">No facts for this category yet. Create the first one!
+      <p className="message">
+        No facts for this category yet. Create the first one!
       </p>
     );
   }
@@ -248,48 +261,74 @@ function FactList({ facts }) {
   return (
     <section>
       <ul className="facts-list">
-        {facts.map((fact) => <Fact key={fact.id} fact={fact} />)}
+        {facts.map((fact) => (
+          <Fact key={fact.id} fact={fact} setFacts={setFacts} />
+        ))}
       </ul>
       <p>There are {facts.length} facts in the database. Add your own!</p>
     </section>
   );
 }
 
-function Fact({ fact }) {
+function Fact({ fact, setFacts }) {
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  async function handleVote() {
-    await supabase
-      .from('facts')
-      .update({ votesInteresting: fact.votesInteresting + 1 })
-      .eq('id', fact.id)
+  async function handleVote(columnName) {
+    setIsUpdating(true);
+    const { data: updatedFact, error } = await supabase
+      .from("facts")
+      .update({ [columnName]: fact[columnName] + 1 })
+      .eq("id", fact.id)
       .select();
+    setIsUpdating(false);
+
+    console.log(updatedFact);
+    if (!error) {
+      setFacts((facts) =>
+        facts.map((f) => (f.id === fact.id ? updatedFact[0] : f))
+      );
+    }
   }
 
   return (
     <li className="fact">
       <p>
         {fact.text}
-        <a
-          className="source"
-          href={fact.source}
-          target="_blank">(Source)
+        <a className="source" href={fact.source} target="_blank">
+          (Source)
         </a>
       </p>
       <span
         className="tag"
         style={{
-          backgroundColor:
-            CATEGORIES.find((cat) => cat.name === fact.category).color
-        }}>{fact.category}
+          backgroundColor: CATEGORIES.find((cat) => cat.name === fact.category)
+            .color,
+        }}
+      >
+        {fact.category}
       </span>
       <div className="vote-buttons">
-        <button onClick={handleVote}>👍 {fact.votesInteresting}</button>
-        <button>🤯 {fact.votesMindBlowing}</button>
-        <button>📛 {fact.votesFalse}</button>
+        <button
+          onClick={() => handleVote(["votesInteresting"])}
+          disabled={isUpdating}
+        >
+          👍 {fact.votesInteresting}
+        </button>
+        <button
+          onClick={() => handleVote(["votesMindBlowing"])}
+          disabled={isUpdating}
+        >
+          🤯 {fact.votesMindBlowing}
+        </button>
+        <button
+          onClick={() => handleVote(["votesFalse"])}
+          disabled={isUpdating}
+        >
+          📛 {fact.votesFalse}
+        </button>
       </div>
     </li>
   );
-
 }
 
 export default App;
