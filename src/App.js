@@ -139,7 +139,7 @@ function isValidHttpUrl(string) {
 
 function NewFactForm({ setFacts, setShowForm }) {
   const [text, setText] = useState("");
-  const [source, setSource] = useState("http://example.com");
+  const [source, setSource] = useState("");
   const [category, setCategory] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const textLength = text.length;
@@ -151,18 +151,6 @@ function NewFactForm({ setFacts, setShowForm }) {
 
     // 2. Check if data is valid. If so, create a new fact.
     if (text && isValidHttpUrl(source) && category && textLength <= 200) {
-      // 3. Create a new fact object.
-      // const newFact = {
-      //   id: Math.round(Math.random() * 100000000),
-      //   text,
-      //   source,
-      //   category,
-      //   votesInteresting: 11,
-      //   votesMindBlowing: 2,
-      //   votesFalse: 0,
-      //   createdIn: new Date().getFullYear(),
-      // };
-
       // 3. Upload fact to Supabase and receive the new fact object
       setIsUploading(true);
       const { data: newFact, error } = await supabase
@@ -272,6 +260,8 @@ function FactList({ facts, setFacts }) {
 
 function Fact({ fact, setFacts }) {
   const [isUpdating, setIsUpdating] = useState(false);
+  const isDisputed =
+    fact.votesInteresting + fact.votesMindBlowing < fact.votesFalse;
 
   async function handleVote(columnName) {
     setIsUpdating(true);
@@ -293,6 +283,7 @@ function Fact({ fact, setFacts }) {
   return (
     <li className="fact">
       <p>
+        {isDisputed ? <span className="disputed">[📛 DISPUTED]</span> : null}
         {fact.text}
         <a className="source" href={fact.source} target="_blank">
           (Source)
